@@ -23,9 +23,10 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/sheidkamp/controller-runtime/pkg/reconcile"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	//"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var _ = Describe("reconcile", func() {
@@ -95,6 +96,11 @@ var _ = Describe("reconcile", func() {
 			terminalError := reconcile.TerminalError(inner)
 
 			Expect(apierrors.IsGone(terminalError)).To(BeTrue())
+		})
+
+		It("should handle nil terminal errors properly", func() {
+			err := reconcile.TerminalError(nil)
+			Expect(err.Error()).To(Equal("nil terminal error"))
 		})
 	})
 })

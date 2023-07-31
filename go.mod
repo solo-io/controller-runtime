@@ -1,4 +1,4 @@
-module sigs.k8s.io/controller-runtime
+module github.com/sheidkamp/controller-runtime
 
 go 1.20
 
@@ -72,3 +72,5 @@ require (
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
+
+replace sigs.k8s.io/controller-runtime => github.com/sheidkamp/controller-runtime v0.15.1-0.20230728185316-cc27bb1e8e0c
