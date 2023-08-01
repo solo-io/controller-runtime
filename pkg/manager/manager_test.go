@@ -25,7 +25,6 @@ import (
 	"net"
 	"net/http"
 	"path"
-	"reflect"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -43,6 +42,7 @@ import (
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 
 	configv1alpha1 "k8s.io/component-base/config/v1alpha1"
+
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/cache/informertest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -154,9 +154,9 @@ var _ = Describe("manger.Manager", func() {
 			}
 
 			m, err := Options{}.AndFrom(&fakeDeferredLoader{ccfg})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
-			Expect(*m.SyncPeriod).To(Equal(duration.Duration))
+			Expect(*m.Cache.SyncPeriod).To(Equal(duration.Duration))
 			Expect(m.LeaderElection).To(Equal(leaderElect))
 			Expect(m.LeaderElectionResourceLock).To(Equal("leases"))
 			Expect(m.LeaderElectionNamespace).To(Equal("default"))
@@ -164,14 +164,14 @@ var _ = Describe("manger.Manager", func() {
 			Expect(m.LeaseDuration.String()).To(Equal(duration.Duration.String()))
 			Expect(m.RenewDeadline.String()).To(Equal(duration.Duration.String()))
 			Expect(m.RetryPeriod.String()).To(Equal(duration.Duration.String()))
-			Expect(m.Namespace).To(Equal("default"))
+			Expect(m.Cache.DefaultNamespaces).To(Equal(map[string]cache.Config{"default": {}}))
 			Expect(m.MetricsBindAddress).To(Equal(":6000"))
 			Expect(m.HealthProbeBindAddress).To(Equal("6060"))
 			Expect(m.ReadinessEndpointName).To(Equal("/readyz"))
 			Expect(m.LivenessEndpointName).To(Equal("/livez"))
-			Expect(m.Port).To(Equal(port))
-			Expect(m.Host).To(Equal("localhost"))
-			Expect(m.CertDir).To(Equal("/certs"))
+			Expect(m.WebhookServer.(*webhook.DefaultServer).Options.Port).To(Equal(port))
+			Expect(m.WebhookServer.(*webhook.DefaultServer).Options.Host).To(Equal("localhost"))
+			Expect(m.WebhookServer.(*webhook.DefaultServer).Options.CertDir).To(Equal("/certs"))
 		})
 
 		It("should be able to keep Options when cfg.ControllerManagerConfiguration set", func() {
@@ -213,7 +213,10 @@ var _ = Describe("manger.Manager", func() {
 				func(config *tls.Config) {},
 			}
 			m, err := Options{
-				SyncPeriod:                 &optDuration,
+				Cache: cache.Options{
+					SyncPeriod:        &optDuration,
+					DefaultNamespaces: map[string]cache.Config{"ctrl": {}},
+				},
 				LeaderElection:             true,
 				LeaderElectionResourceLock: "configmaps",
 				LeaderElectionNamespace:    "ctrl",
@@ -221,7 +224,6 @@ var _ = Describe("manger.Manager", func() {
 				LeaseDuration:              &optDuration,
 				RenewDeadline:              &optDuration,
 				RetryPeriod:                &optDuration,
-				Namespace:                  "ctrl",
 				MetricsBindAddress:         ":7000",
 				HealthProbeBindAddress:     "5000",
 				ReadinessEndpointName:      "/readiness",
@@ -233,17 +235,17 @@ var _ = Describe("manger.Manager", func() {
 					TLSOpts: optionsTlSOptsFuncs,
 				}),
 			}.AndFrom(&fakeDeferredLoader{ccfg})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
-			Expect(m.SyncPeriod.String()).To(Equal(optDuration.String()))
-			Expect(m.LeaderElection).To(Equal(true))
+			Expect(m.Cache.SyncPeriod.String()).To(Equal(optDuration.String()))
+			Expect(m.LeaderElection).To(BeTrue())
 			Expect(m.LeaderElectionResourceLock).To(Equal("configmaps"))
 			Expect(m.LeaderElectionNamespace).To(Equal("ctrl"))
 			Expect(m.LeaderElectionID).To(Equal("ctrl-configmap"))
 			Expect(m.LeaseDuration.String()).To(Equal(optDuration.String()))
 			Expect(m.RenewDeadline.String()).To(Equal(optDuration.String()))
 			Expect(m.RetryPeriod.String()).To(Equal(optDuration.String()))
-			Expect(m.Namespace).To(Equal("ctrl"))
+			Expect(m.Cache.DefaultNamespaces).To(Equal(map[string]cache.Config{"ctrl": {}}))
 			Expect(m.MetricsBindAddress).To(Equal(":7000"))
 			Expect(m.HealthProbeBindAddress).To(Equal("5000"))
 			Expect(m.ReadinessEndpointName).To(Equal("/readiness"))
@@ -267,23 +269,10 @@ var _ = Describe("manger.Manager", func() {
 			Expect(svr.(*webhook.DefaultServer).Options.Host).To(Equal("foo.com"))
 		})
 
-		It("should lazily initialize a webhook server if needed (deprecated)", func() {
-			By("creating a manager with options")
-			m, err := New(cfg, Options{Port: 9440, Host: "foo.com"})
-			Expect(err).NotTo(HaveOccurred())
-			Expect(m).NotTo(BeNil())
-
-			By("checking options are passed to the webhook server")
-			svr := m.GetWebhookServer()
-			Expect(svr).NotTo(BeNil())
-			Expect(svr.(*webhook.DefaultServer).Options.Port).To(Equal(9440))
-			Expect(svr.(*webhook.DefaultServer).Options.Host).To(Equal("foo.com"))
-		})
-
 		It("should not initialize a webhook server if Options.WebhookServer is set", func() {
 			By("creating a manager with options")
 			srv := webhook.NewServer(webhook.Options{Port: 9440})
-			m, err := New(cfg, Options{Port: 9441, WebhookServer: srv})
+			m, err := New(cfg, Options{WebhookServer: srv})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(m).NotTo(BeNil())
 
@@ -319,7 +308,7 @@ var _ = Describe("manger.Manager", func() {
 					MetricsBindAddress:      "0",
 					PprofBindAddress:        "0",
 				})
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				runnableDone := make(chan struct{})
 				slowRunnable := RunnableFunc(func(ctx context.Context) error {
@@ -328,7 +317,7 @@ var _ = Describe("manger.Manager", func() {
 					close(runnableDone)
 					return nil
 				})
-				Expect(m.Add(slowRunnable)).To(BeNil())
+				Expect(m.Add(slowRunnable)).To(Succeed())
 
 				cm := m.(*controllerManager)
 				cm.gracefulShutdownTimeout = time.Second
@@ -341,7 +330,7 @@ var _ = Describe("manger.Manager", func() {
 				mgrDone := make(chan struct{})
 				go func() {
 					defer GinkgoRecover()
-					Expect(m.Start(ctx)).To(BeNil())
+					Expect(m.Start(ctx)).To(Succeed())
 					close(mgrDone)
 				}()
 				<-cm.Elected()
@@ -365,7 +354,7 @@ var _ = Describe("manger.Manager", func() {
 					MetricsBindAddress:      "0",
 					PprofBindAddress:        "0",
 				})
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				ctx, cancel := context.WithCancel(context.Background())
 				defer cancel()
@@ -373,7 +362,7 @@ var _ = Describe("manger.Manager", func() {
 				go func() {
 					defer GinkgoRecover()
 					err := m.Start(ctx)
-					Expect(err).ToNot(BeNil())
+					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("leader election lost"))
 					close(mgrDone)
 				}()
@@ -500,7 +489,7 @@ var _ = Describe("manger.Manager", func() {
 			It("should use the specified ResourceLock", func() {
 				m, err := New(cfg, Options{
 					LeaderElection:             true,
-					LeaderElectionResourceLock: resourcelock.ConfigMapsLeasesResourceLock,
+					LeaderElectionResourceLock: resourcelock.LeasesResourceLock,
 					LeaderElectionID:           "controller-runtime",
 					LeaderElectionNamespace:    "my-ns",
 				})
@@ -508,14 +497,8 @@ var _ = Describe("manger.Manager", func() {
 				Expect(err).ToNot(HaveOccurred())
 				cm, ok := m.(*controllerManager)
 				Expect(ok).To(BeTrue())
-				multilock, isMultiLock := cm.resourceLock.(*resourcelock.MultiLock)
-				Expect(isMultiLock).To(BeTrue())
-				primaryLockType := reflect.TypeOf(multilock.Primary)
-				Expect(primaryLockType.Kind()).To(Equal(reflect.Ptr))
-				Expect(primaryLockType.Elem().PkgPath()).To(Equal("k8s.io/client-go/tools/leaderelection/resourcelock"))
-				Expect(primaryLockType.Elem().Name()).To(Equal("configMapLock"))
-				_, secondaryIsLeaseLock := multilock.Secondary.(*resourcelock.LeaseLock)
-				Expect(secondaryIsLeaseLock).To(BeTrue())
+				_, isLeaseLock := cm.resourceLock.(*resourcelock.LeaseLock)
+				Expect(isLeaseLock).To(BeTrue())
 			})
 			It("should release lease if ElectionReleaseOnCancel is true", func() {
 				var rl resourcelock.Interface
@@ -531,7 +514,7 @@ var _ = Describe("manger.Manager", func() {
 						return rl, err
 					},
 				})
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				ctx, cancel := context.WithCancel(context.Background())
 				doneCh := make(chan struct{})
@@ -547,7 +530,7 @@ var _ = Describe("manger.Manager", func() {
 				ctx, cancel = context.WithCancel(context.Background())
 				defer cancel()
 				record, _, err := rl.Get(ctx)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 				Expect(record.HolderIdentity).To(BeEmpty())
 			})
 			When("using a custom LeaderElectionResourceLockInterface", func() {
@@ -827,7 +810,7 @@ var _ = Describe("manger.Manager", func() {
 				ctx, cancel := context.WithCancel(context.Background())
 				defer cancel()
 				err = m.Start(ctx)
-				Expect(err).ToNot(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("expected error"))
 			})
 
@@ -999,7 +982,7 @@ var _ = Describe("manger.Manager", func() {
 				m.(*controllerManager).gracefulShutdownTimeout = 1 * time.Nanosecond
 				Expect(m.Add(RunnableFunc(func(context.Context) error {
 					return runnableError{}
-				})))
+				}))).To(Succeed())
 				testDone := make(chan struct{})
 				defer close(testDone)
 				Expect(m.Add(RunnableFunc(func(ctx context.Context) error {
@@ -1012,11 +995,11 @@ var _ = Describe("manger.Manager", func() {
 					case <-timer.C:
 						return nil
 					}
-				})))
+				}))).To(Succeed())
 				ctx, cancel := context.WithCancel(context.Background())
 				defer cancel()
 				err = m.Start(ctx)
-				Expect(err).ToNot(BeNil())
+				Expect(err).To(HaveOccurred())
 				eMsg := "[not feeling like that, failed waiting for all runnables to end within grace period of 1ns: context deadline exceeded]"
 				Expect(err.Error()).To(Equal(eMsg))
 				Expect(errors.Is(err, context.DeadlineExceeded)).To(BeTrue())
@@ -1033,7 +1016,7 @@ var _ = Describe("manger.Manager", func() {
 				Expect(m.Add(RunnableFunc(func(ctx context.Context) error {
 					<-ctx.Done()
 					return nil
-				})))
+				}))).To(Succeed())
 				testDone := make(chan struct{})
 				defer close(testDone)
 				Expect(m.Add(RunnableFunc(func(ctx context.Context) error {
@@ -1046,7 +1029,7 @@ var _ = Describe("manger.Manager", func() {
 					case <-timer.C:
 						return nil
 					}
-				}))).NotTo(HaveOccurred())
+				}))).To(Succeed())
 				ctx, cancel := context.WithCancel(context.Background())
 				managerStopDone := make(chan struct{})
 				go func() { err = m.Start(ctx); close(managerStopDone) }()
@@ -1055,7 +1038,7 @@ var _ = Describe("manger.Manager", func() {
 				<-m.(*controllerManager).elected
 				cancel()
 				<-managerStopDone
-				Expect(err).ToNot(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("failed waiting for all runnables to end within grace period of 1ns: context deadline exceeded"))
 				Expect(errors.Is(err, context.DeadlineExceeded)).To(BeTrue())
 				Expect(errors.Is(err, runnableError{})).ToNot(BeTrue())
@@ -1069,11 +1052,11 @@ var _ = Describe("manger.Manager", func() {
 				}
 				Expect(m.Add(RunnableFunc(func(context.Context) error {
 					return runnableError{}
-				})))
+				}))).To(Succeed())
 				ctx, cancel := context.WithCancel(context.Background())
 				defer cancel()
 				err = m.Start(ctx)
-				Expect(err).ToNot(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("not feeling like that"))
 				Expect(errors.Is(err, context.DeadlineExceeded)).ToNot(BeTrue())
 				Expect(errors.Is(err, runnableError{})).To(BeTrue())
@@ -1675,7 +1658,7 @@ var _ = Describe("manger.Manager", func() {
 			}).Should(BeTrue())
 
 			err = m.Start(ctx)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("manager already started"))
 
 		})

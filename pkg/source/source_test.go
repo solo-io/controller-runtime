@@ -23,6 +23,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"sigs.k8s.io/controller-runtime/pkg/cache/informertest"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -88,7 +89,7 @@ var _ = Describe("Source", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(instance.WaitForSync(context.Background())).NotTo(HaveOccurred())
 
-				i, err := ic.FakeInformerFor(&corev1.Pod{})
+				i, err := ic.FakeInformerFor(ctx, &corev1.Pod{})
 				Expect(err).NotTo(HaveOccurred())
 
 				i.Add(p)
@@ -128,7 +129,7 @@ var _ = Describe("Source", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(instance.WaitForSync(context.Background())).NotTo(HaveOccurred())
 
-				i, err := ic.FakeInformerFor(&corev1.Pod{})
+				i, err := ic.FakeInformerFor(ctx, &corev1.Pod{})
 				Expect(err).NotTo(HaveOccurred())
 
 				i.Update(p, p2)
@@ -170,7 +171,7 @@ var _ = Describe("Source", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(instance.WaitForSync(context.Background())).NotTo(HaveOccurred())
 
-				i, err := ic.FakeInformerFor(&corev1.Pod{})
+				i, err := ic.FakeInformerFor(ctx, &corev1.Pod{})
 				Expect(err).NotTo(HaveOccurred())
 
 				i.Delete(p)
@@ -213,7 +214,7 @@ var _ = Describe("Source", func() {
 				instance := source.Kind(ic, &corev1.Pod{})
 				err := instance.Start(ctx, handler.Funcs{}, q)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(instance.WaitForSync(context.Background())).Should(HaveOccurred())
+				Eventually(instance.WaitForSync).WithArguments(context.Background()).Should(HaveOccurred())
 			})
 		})
 
