@@ -74,4 +74,4 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
 
-//replace sigs.k8s.io/controller-runtime => github.com/solo-io/controller-runtime v0.0.0-20230728161957-7f0c6dc440f3
+replace sigs.k8s.io/controller-runtime => github.com/solo-io/controller-runtime v0.0.0-20230802180103-3dde4c9efdec
