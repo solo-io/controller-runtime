@@ -26,9 +26,9 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	intrec "sigs.k8s.io/controller-runtime/pkg/internal/recorder"
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	intrec "github.com/solo-io/controller-runtime/pkg/internal/recorder"
 )
 
 type cluster struct {

@@ -23,8 +23,8 @@ import (
 	"strconv"
 	"time"
 
-	"sigs.k8s.io/controller-runtime/pkg/internal/testing/addr"
-	"sigs.k8s.io/controller-runtime/pkg/internal/testing/process"
+	"github.com/solo-io/controller-runtime/pkg/internal/testing/addr"
+	"github.com/solo-io/controller-runtime/pkg/internal/testing/process"
 )
 
 // Etcd knows how to run an etcd server.

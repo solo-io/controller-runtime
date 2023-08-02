@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"time"
 
-	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
+	"github.com/solo-io/controller-runtime/pkg/client/interceptor"
 
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/ginkgo/v2"
@@ -33,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes/fake"
 
+	"github.com/solo-io/controller-runtime/pkg/client"
 	appsv1 "k8s.io/api/apps/v1"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -43,7 +44,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var _ = Describe("Fake client", func() {

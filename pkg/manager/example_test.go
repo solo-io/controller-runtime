@@ -20,13 +20,13 @@ import (
 	"context"
 	"os"
 
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client/config"
+	conf "github.com/solo-io/controller-runtime/pkg/config"
+	logf "github.com/solo-io/controller-runtime/pkg/log"
+	"github.com/solo-io/controller-runtime/pkg/manager"
+	"github.com/solo-io/controller-runtime/pkg/manager/signals"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
-	conf "sigs.k8s.io/controller-runtime/pkg/config"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
 var (

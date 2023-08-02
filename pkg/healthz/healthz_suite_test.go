@@ -21,8 +21,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	logf "github.com/solo-io/controller-runtime/pkg/log"
+	"github.com/solo-io/controller-runtime/pkg/log/zap"
 )
 
 func TestHealthz(t *testing.T) {

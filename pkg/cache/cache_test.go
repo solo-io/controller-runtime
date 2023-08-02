@@ -40,8 +40,8 @@ import (
 	kcache "k8s.io/client-go/tools/cache"
 	"k8s.io/utils/pointer"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client"
 )
 
 const testNodeOne = "test-node-1"

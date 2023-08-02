@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/solo-io/controller-runtime/pkg/webhook"
+	"github.com/solo-io/controller-runtime/pkg/webhook/admission"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // ChaosPodSpec defines the desired state of ChaosPod

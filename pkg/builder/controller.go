@@ -26,15 +26,15 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	internalsource "sigs.k8s.io/controller-runtime/pkg/internal/source"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
+	"github.com/solo-io/controller-runtime/pkg/controller"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	internalsource "github.com/solo-io/controller-runtime/pkg/internal/source"
+	"github.com/solo-io/controller-runtime/pkg/manager"
+	"github.com/solo-io/controller-runtime/pkg/predicate"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
+	"github.com/solo-io/controller-runtime/pkg/source"
 )
 
 // Supporting mocking out functions for testing.

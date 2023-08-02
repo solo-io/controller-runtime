@@ -28,10 +28,10 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/conversion"
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
+	"github.com/solo-io/controller-runtime/pkg/manager"
+	"github.com/solo-io/controller-runtime/pkg/webhook/admission"
+	"github.com/solo-io/controller-runtime/pkg/webhook/conversion"
 )
 
 // WebhookBuilder builds a Webhook.

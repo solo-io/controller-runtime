@@ -31,8 +31,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	machinerytypes "k8s.io/apimachinery/pkg/types"
 
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	logf "github.com/solo-io/controller-runtime/pkg/log"
+	"github.com/solo-io/controller-runtime/pkg/log/zap"
 )
 
 var _ = Describe("Admission Webhooks", func() {

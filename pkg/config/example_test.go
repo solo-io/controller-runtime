@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/solo-io/controller-runtime/pkg/config"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/config"
 
-	"sigs.k8s.io/controller-runtime/examples/configfile/custom/v1alpha1"
+	"github.com/solo-io/controller-runtime/examples/configfile/custom/v1alpha1"
 )
 
 var scheme = runtime.NewScheme()

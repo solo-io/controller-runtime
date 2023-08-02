@@ -34,8 +34,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/prometheus/client_golang/prometheus/testutil"
-	"sigs.k8s.io/controller-runtime/pkg/certwatcher"
-	"sigs.k8s.io/controller-runtime/pkg/certwatcher/metrics"
+	"github.com/solo-io/controller-runtime/pkg/certwatcher"
+	"github.com/solo-io/controller-runtime/pkg/certwatcher/metrics"
 )
 
 var _ = Describe("CertWatcher", func() {

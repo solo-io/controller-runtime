@@ -20,11 +20,11 @@ import (
 	"context"
 	"net/http"
 
-	ctrl "sigs.k8s.io/controller-runtime"
-	logf "sigs.k8s.io/controller-runtime/pkg/internal/log"
-	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
-	. "sigs.k8s.io/controller-runtime/pkg/webhook"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+	ctrl "github.com/solo-io/controller-runtime"
+	logf "github.com/solo-io/controller-runtime/pkg/internal/log"
+	"github.com/solo-io/controller-runtime/pkg/manager/signals"
+	. "github.com/solo-io/controller-runtime/pkg/webhook"
+	"github.com/solo-io/controller-runtime/pkg/webhook/admission"
 )
 
 var (

@@ -20,16 +20,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	logf "github.com/solo-io/controller-runtime/pkg/internal/log"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	logf "sigs.k8s.io/controller-runtime/pkg/internal/log"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var _ EventHandler = &enqueueRequestForOwner{}

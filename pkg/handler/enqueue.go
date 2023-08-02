@@ -19,11 +19,11 @@ package handler
 import (
 	"context"
 
+	"github.com/solo-io/controller-runtime/pkg/event"
+	logf "github.com/solo-io/controller-runtime/pkg/internal/log"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	logf "sigs.k8s.io/controller-runtime/pkg/internal/log"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var enqueueLog = logf.RuntimeLog.WithName("eventhandler").WithName("EnqueueRequestForObject")

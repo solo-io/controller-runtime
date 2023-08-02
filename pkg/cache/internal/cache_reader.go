@@ -28,8 +28,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/tools/cache"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/internal/field/selector"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/internal/field/selector"
 )
 
 // CacheReader is a client.Reader.

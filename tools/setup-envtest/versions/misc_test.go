@@ -20,7 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	. "sigs.k8s.io/controller-runtime/tools/setup-envtest/versions"
+	. "github.com/solo-io/controller-runtime/tools/setup-envtest/versions"
 )
 
 var _ = Describe("Concrete", func() {

@@ -27,9 +27,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache/internal"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllertest"
-	crscheme "sigs.k8s.io/controller-runtime/pkg/scheme"
+	"github.com/solo-io/controller-runtime/pkg/cache/internal"
+	"github.com/solo-io/controller-runtime/pkg/controller/controllertest"
+	crscheme "github.com/solo-io/controller-runtime/pkg/scheme"
 )
 
 const (

@@ -24,11 +24,11 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/solo-io/controller-runtime/pkg/certwatcher/metrics"
+	logf "github.com/solo-io/controller-runtime/pkg/internal/log"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"sigs.k8s.io/controller-runtime/pkg/certwatcher/metrics"
-	logf "sigs.k8s.io/controller-runtime/pkg/internal/log"
 )
 
 var log = logf.RuntimeLog.WithName("certwatcher")

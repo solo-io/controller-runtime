@@ -30,7 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/client"
 )
 
 var _ = Describe("DryRunClient", func() {

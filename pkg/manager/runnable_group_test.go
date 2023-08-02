@@ -9,9 +9,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/solo-io/controller-runtime/pkg/cache/informertest"
+	"github.com/solo-io/controller-runtime/pkg/webhook"
 	"k8s.io/utils/pointer"
-	"sigs.k8s.io/controller-runtime/pkg/cache/informertest"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
 var _ = Describe("runnables", func() {

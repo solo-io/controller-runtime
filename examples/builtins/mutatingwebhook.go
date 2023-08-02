@@ -23,7 +23,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	logf "github.com/solo-io/controller-runtime/pkg/log"
 )
 
 // +kubebuilder:webhook:path=/mutate--v1-pod,mutating=true,failurePolicy=fail,groups="",resources=pods,verbs=create;update,versions=v1,name=mpod.kb.io
