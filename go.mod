@@ -1,4 +1,4 @@
-module github.com/sheidkamp/controller-runtime
+module github.com/solo-io/controller-runtime
 
 go 1.20
 
@@ -26,6 +26,7 @@ require (
 	k8s.io/component-base v0.28.0-beta.0
 	k8s.io/klog/v2 v2.100.1
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2
+	sigs.k8s.io/controller-runtime v0.0.0-00010101000000-000000000000
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -74,4 +75,4 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
 
-replace sigs.k8s.io/controller-runtime => github.com/sheidkamp/controller-runtime v0.15.1-0.20230728185316-cc27bb1e8e0c
+replace sigs.k8s.io/controller-runtime => github.com/solo-io/controller-runtime v0.0.0-20230728161957-7f0c6dc440f3
