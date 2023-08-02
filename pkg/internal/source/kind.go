@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	"github.com/solo-io/controller-runtime/pkg/predicate"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
 // Kind is used to provide a source of events originating inside the cluster from Watches (e.g. Pod Create).

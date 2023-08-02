@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,7 +36,6 @@ import (
 	"k8s.io/client-go/metadata"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 // InformersOpts configures an InformerMap.

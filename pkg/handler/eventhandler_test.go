@@ -21,6 +21,12 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
+	"github.com/solo-io/controller-runtime/pkg/controller/controllertest"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -31,12 +37,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/utils/pointer"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllertest"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var _ = Describe("Eventhandler", func() {

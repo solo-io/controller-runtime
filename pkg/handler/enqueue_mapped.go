@@ -19,10 +19,10 @@ package handler
 import (
 	"context"
 
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
 	"k8s.io/client-go/util/workqueue"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 // MapFunc is the signature required for enqueueing requests from a generic function.

@@ -34,12 +34,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/scheme"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+	"github.com/solo-io/controller-runtime/pkg/controller"
+	logf "github.com/solo-io/controller-runtime/pkg/log"
+	"github.com/solo-io/controller-runtime/pkg/log/zap"
+	"github.com/solo-io/controller-runtime/pkg/manager"
+	"github.com/solo-io/controller-runtime/pkg/scheme"
+	"github.com/solo-io/controller-runtime/pkg/webhook/admission"
 )
 
 var _ = Describe("webhook", func() {

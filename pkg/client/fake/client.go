@@ -31,8 +31,9 @@ import (
 
 	// Using v4 to match upstream
 	jsonpatch "github.com/evanphx/json-patch"
-	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
+	"github.com/solo-io/controller-runtime/pkg/client/interceptor"
 
+	"github.com/solo-io/controller-runtime/pkg/internal/field/selector"
 	corev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
@@ -52,11 +53,10 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/testing"
-	"sigs.k8s.io/controller-runtime/pkg/internal/field/selector"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"sigs.k8s.io/controller-runtime/pkg/internal/objectutil"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
+	"github.com/solo-io/controller-runtime/pkg/internal/objectutil"
 )
 
 type versionedTracker struct {
@@ -373,7 +373,7 @@ func (t versionedTracker) Update(gvr schema.GroupVersionResource, obj runtime.Ob
 	isStatus := false
 	// We apply patches using a client-go reaction that ends up calling the trackers Update. As we can't change
 	// that reaction, we use the callstack to figure out if this originated from the status client.
-	if bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeSubResourceClient).Patch")) {
+	if bytes.Contains(debug.Stack(), []byte("github.com/solo-io/controller-runtime/pkg/client/fake.(*fakeSubResourceClient).Patch")) {
 		isStatus = true
 	}
 	return t.update(gvr, obj, ns, isStatus, false)

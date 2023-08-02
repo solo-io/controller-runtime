@@ -21,14 +21,14 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	internal "github.com/solo-io/controller-runtime/pkg/internal/source"
 	"k8s.io/client-go/util/workqueue"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	internal "sigs.k8s.io/controller-runtime/pkg/internal/source"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/predicate"
 )
 
 const (

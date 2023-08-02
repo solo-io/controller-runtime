@@ -24,14 +24,14 @@ import (
 	_ "github.com/onsi/ginkgo/v2"
 	gmg "github.com/onsi/gomega"
 
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
+	"github.com/solo-io/controller-runtime/pkg/envtest"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"sigs.k8s.io/controller-runtime/pkg/envtest"
 )
 
 // countingRoundTripper is used to count HTTP requests.

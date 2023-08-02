@@ -20,12 +20,10 @@ import (
 	"bytes"
 
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"github.com/spf13/afero"
 
-	. "sigs.k8s.io/controller-runtime/tools/setup-envtest/env"
-	"sigs.k8s.io/controller-runtime/tools/setup-envtest/store"
-	"sigs.k8s.io/controller-runtime/tools/setup-envtest/versions"
+	"github.com/solo-io/controller-runtime/tools/setup-envtest/store"
+	"github.com/solo-io/controller-runtime/tools/setup-envtest/versions"
 )
 
 var _ = Describe("Env", func() {

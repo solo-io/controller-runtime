@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"time"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/source"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	"github.com/solo-io/controller-runtime/pkg/source"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

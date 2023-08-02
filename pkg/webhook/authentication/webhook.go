@@ -26,7 +26,7 @@ import (
 	authenticationv1 "k8s.io/api/authentication/v1"
 	"k8s.io/klog/v2"
 
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	logf "github.com/solo-io/controller-runtime/pkg/log"
 )
 
 var (

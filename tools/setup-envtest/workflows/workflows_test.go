@@ -10,15 +10,14 @@ import (
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 	"github.com/spf13/afero"
 
-	envp "sigs.k8s.io/controller-runtime/tools/setup-envtest/env"
-	"sigs.k8s.io/controller-runtime/tools/setup-envtest/remote"
-	"sigs.k8s.io/controller-runtime/tools/setup-envtest/store"
-	"sigs.k8s.io/controller-runtime/tools/setup-envtest/versions"
-	wf "sigs.k8s.io/controller-runtime/tools/setup-envtest/workflows"
+	envp "github.com/solo-io/controller-runtime/tools/setup-envtest/env"
+	"github.com/solo-io/controller-runtime/tools/setup-envtest/remote"
+	"github.com/solo-io/controller-runtime/tools/setup-envtest/store"
+	"github.com/solo-io/controller-runtime/tools/setup-envtest/versions"
+	wf "github.com/solo-io/controller-runtime/tools/setup-envtest/workflows"
 )
 
 func ver(major, minor, patch int) versions.Concrete {

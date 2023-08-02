@@ -3,11 +3,11 @@ package interceptor
 import (
 	"context"
 
+	"github.com/solo-io/controller-runtime/pkg/client"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // Funcs contains functions that are called instead of the underlying client's methods.

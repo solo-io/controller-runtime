@@ -19,8 +19,8 @@ package handler
 import (
 	"context"
 
+	"github.com/solo-io/controller-runtime/pkg/event"
 	"k8s.io/client-go/util/workqueue"
-	"sigs.k8s.io/controller-runtime/pkg/event"
 )
 
 // EventHandler enqueues reconcile.Requests in response to events (e.g. Pod Create).  EventHandlers map an Event

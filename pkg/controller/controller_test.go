@@ -26,14 +26,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/pointer"
 
-	"sigs.k8s.io/controller-runtime/pkg/config"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	internalcontroller "sigs.k8s.io/controller-runtime/pkg/internal/controller"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
+	"github.com/solo-io/controller-runtime/pkg/config"
+	"github.com/solo-io/controller-runtime/pkg/controller"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	internalcontroller "github.com/solo-io/controller-runtime/pkg/internal/controller"
+	"github.com/solo-io/controller-runtime/pkg/manager"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
+	"github.com/solo-io/controller-runtime/pkg/source"
 )
 
 var _ = Describe("controller.Controller", func() {

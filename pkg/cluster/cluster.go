@@ -23,18 +23,18 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/solo-io/controller-runtime/pkg/client/apiutil"
+	logf "github.com/solo-io/controller-runtime/pkg/internal/log"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/utils/pointer"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	logf "sigs.k8s.io/controller-runtime/pkg/internal/log"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	intrec "sigs.k8s.io/controller-runtime/pkg/internal/recorder"
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	intrec "github.com/solo-io/controller-runtime/pkg/internal/recorder"
 )
 
 // Cluster provides various methods to interact with a cluster.

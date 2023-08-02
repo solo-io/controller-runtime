@@ -18,9 +18,6 @@ package versions_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
-	. "sigs.k8s.io/controller-runtime/tools/setup-envtest/versions"
 )
 
 var _ = Describe("Selectors", func() {

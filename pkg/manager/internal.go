@@ -37,15 +37,15 @@ import (
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"k8s.io/client-go/tools/record"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/cluster"
-	"sigs.k8s.io/controller-runtime/pkg/config"
-	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/internal/httpserver"
-	intrec "sigs.k8s.io/controller-runtime/pkg/internal/recorder"
-	"sigs.k8s.io/controller-runtime/pkg/metrics"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/cluster"
+	"github.com/solo-io/controller-runtime/pkg/config"
+	"github.com/solo-io/controller-runtime/pkg/healthz"
+	"github.com/solo-io/controller-runtime/pkg/internal/httpserver"
+	intrec "github.com/solo-io/controller-runtime/pkg/internal/recorder"
+	"github.com/solo-io/controller-runtime/pkg/metrics"
+	"github.com/solo-io/controller-runtime/pkg/webhook"
 )
 
 const (

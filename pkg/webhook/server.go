@@ -29,10 +29,10 @@ import (
 	"sync"
 	"time"
 
-	"sigs.k8s.io/controller-runtime/pkg/certwatcher"
-	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/internal/httpserver"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics"
+	"github.com/solo-io/controller-runtime/pkg/certwatcher"
+	"github.com/solo-io/controller-runtime/pkg/healthz"
+	"github.com/solo-io/controller-runtime/pkg/internal/httpserver"
+	"github.com/solo-io/controller-runtime/pkg/webhook/internal/metrics"
 )
 
 // DefaultPort is the default port that the webhook server serves.

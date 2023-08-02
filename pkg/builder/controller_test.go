@@ -35,16 +35,16 @@ import (
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/utils/pointer"
 
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/config"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/scheme"
+	"github.com/solo-io/controller-runtime/pkg/cache"
+	"github.com/solo-io/controller-runtime/pkg/client"
+	"github.com/solo-io/controller-runtime/pkg/config"
+	"github.com/solo-io/controller-runtime/pkg/controller"
+	"github.com/solo-io/controller-runtime/pkg/event"
+	"github.com/solo-io/controller-runtime/pkg/handler"
+	"github.com/solo-io/controller-runtime/pkg/manager"
+	"github.com/solo-io/controller-runtime/pkg/predicate"
+	"github.com/solo-io/controller-runtime/pkg/reconcile"
+	"github.com/solo-io/controller-runtime/pkg/scheme"
 )
 
 type typedNoop struct{}
@@ -398,7 +398,7 @@ var _ = Describe("application", func() {
 			bldr := ControllerManagedBy(m).
 				Named("Deployment").
 				Watches( // Equivalent of For
-						&appsv1.Deployment{}, &handler.EnqueueRequestForObject{}).
+					&appsv1.Deployment{}, &handler.EnqueueRequestForObject{}).
 				Watches( // Equivalent of Owns
 					&appsv1.ReplicaSet{},
 					handler.EnqueueRequestForOwner(m.GetScheme(), m.GetRESTMapper(), &appsv1.Deployment{}, handler.OnlyControllerOwner()),
