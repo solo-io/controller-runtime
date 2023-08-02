@@ -233,7 +233,7 @@ var _ = Describe("MatchingLabels", func() {
 
 		r, _ := listOpts.LabelSelector.Requirements()
 		_, err := labels.NewRequirement(r[0].Key(), r[0].Operator(), r[0].Values().List())
-		Expect(err).ToNot(BeNil())
+		Expect(err).To(HaveOccurred())
 		expectedErrMsg := `values[0][k]: Invalid value: "axahm2EJ8Phiephe2eixohbee9eGeiyees1thuozi1xoh0GiuH3diewi8iem7Nui": must be no more than 63 characters`
 		Expect(err.Error()).To(Equal(expectedErrMsg))
 	})
@@ -296,13 +296,45 @@ var _ = Describe("ForceOwnership", func() {
 		o := &client.PatchOptions{}
 		t := client.ForceOwnership
 		t.ApplyToPatch(o)
-		Expect(*o.Force).To(Equal(true))
+		Expect(*o.Force).To(BeTrue())
 	})
 	It("Should apply to SubResourcePatchOptions", func() {
 		o := &client.SubResourcePatchOptions{PatchOptions: client.PatchOptions{}}
 		t := client.ForceOwnership
 		t.ApplyToSubResourcePatch(o)
-		Expect(*o.Force).To(Equal(true))
+		Expect(*o.Force).To(BeTrue())
+	})
+})
+
+var _ = Describe("HasLabels", func() {
+	It("Should produce hasLabels in given order", func() {
+		listOpts := &client.ListOptions{}
+
+		hasLabels := client.HasLabels([]string{"labelApe", "labelFox"})
+		hasLabels.ApplyToList(listOpts)
+		Expect(listOpts.LabelSelector.String()).To(Equal("labelApe,labelFox"))
+	})
+
+	It("Should add hasLabels to existing hasLabels selector", func() {
+		listOpts := &client.ListOptions{}
+
+		hasLabel := client.HasLabels([]string{"labelApe"})
+		hasLabel.ApplyToList(listOpts)
+
+		hasOtherLabel := client.HasLabels([]string{"labelFox"})
+		hasOtherLabel.ApplyToList(listOpts)
+		Expect(listOpts.LabelSelector.String()).To(Equal("labelApe,labelFox"))
+	})
+
+	It("Should add hasLabels to existing matchingLabels", func() {
+		listOpts := &client.ListOptions{}
+
+		matchingLabels := client.MatchingLabels(map[string]string{"k": "v"})
+		matchingLabels.ApplyToList(listOpts)
+
+		hasLabel := client.HasLabels([]string{"labelApe"})
+		hasLabel.ApplyToList(listOpts)
+		Expect(listOpts.LabelSelector.String()).To(Equal("k=v,labelApe"))
 	})
 })
 

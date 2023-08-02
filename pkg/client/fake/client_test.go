@@ -23,16 +23,9 @@ import (
 	"strconv"
 	"time"
 
-	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
-
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes/fake"
-
 	appsv1 "k8s.io/api/apps/v1"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -40,10 +33,16 @@ import (
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes/fake"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 )
 
 var _ = Describe("Fake client", func() {
@@ -113,7 +112,7 @@ var _ = Describe("Fake client", func() {
 			}
 			obj := &appsv1.Deployment{}
 			err := cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj).To(Equal(dep))
 		})
 
@@ -127,14 +126,14 @@ var _ = Describe("Fake client", func() {
 			obj.SetAPIVersion("apps/v1")
 			obj.SetKind("Deployment")
 			err := cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should be able to List", func() {
 			By("Listing all deployments in a namespace")
 			list := &appsv1.DeploymentList{}
 			err := cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(2))
 			Expect(list.Items).To(ConsistOf(*dep, *dep2))
 		})
@@ -145,7 +144,7 @@ var _ = Describe("Fake client", func() {
 			list.SetAPIVersion("apps/v1")
 			list.SetKind("DeploymentList")
 			err := cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(2))
 		})
 
@@ -155,7 +154,7 @@ var _ = Describe("Fake client", func() {
 			list.SetAPIVersion("apps/v1")
 			list.SetKind("Deployment")
 			err := cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(2))
 		})
 
@@ -166,7 +165,7 @@ var _ = Describe("Fake client", func() {
 				list.SetAPIVersion("v1")
 				list.SetKind("EndpointsList")
 				err := cl.List(context.Background(), list, client.InNamespace("ns1"))
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 				Expect(list.Items).To(HaveLen(1))
 			}
 
@@ -180,27 +179,27 @@ var _ = Describe("Fake client", func() {
 			}
 
 			By("Adding the object during client initialization")
-			cl = NewFakeClient(unstructuredEndpoint())
+			cl = NewClientBuilder().WithRuntimeObjects(unstructuredEndpoint()).Build()
 			list()
-			Expect(cl.Delete(context.Background(), unstructuredEndpoint())).To(BeNil())
+			Expect(cl.Delete(context.Background(), unstructuredEndpoint())).To(Succeed())
 
 			By("Creating an object")
 			item := unstructuredEndpoint()
 			err := cl.Create(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			list()
 
 			By("Updating the object")
 			item.SetAnnotations(map[string]string{"foo": "bar"})
 			err = cl.Update(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			list()
 
 			By("Patching the object")
 			old := item.DeepCopy()
 			item.SetAnnotations(map[string]string{"bar": "baz"})
 			err = cl.Patch(context.Background(), item, client.MergeFrom(old))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			list()
 		})
 
@@ -210,7 +209,7 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err := cl.Create(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should be able to Get an unregisted type using unstructured", func() {
@@ -220,7 +219,7 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err := cl.Create(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting and the object")
 			item = &unstructured.Unstructured{}
@@ -228,7 +227,7 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err = cl.Get(context.Background(), client.ObjectKeyFromObject(item), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should be able to List an unregistered type using unstructured", func() {
@@ -236,7 +235,7 @@ var _ = Describe("Fake client", func() {
 			list.SetAPIVersion("custom/v3")
 			list.SetKind("ImageList")
 			err := cl.List(context.Background(), list)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should be able to List an unregistered type using unstructured", func() {
@@ -244,7 +243,7 @@ var _ = Describe("Fake client", func() {
 			list.SetAPIVersion("custom/v4")
 			list.SetKind("Image")
 			err := cl.List(context.Background(), list)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should be able to Update an unregistered type using unstructured", func() {
@@ -254,13 +253,13 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err := cl.Create(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Updating the object")
 			err = unstructured.SetNestedField(item.Object, int64(2), "spec", "replicas")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			err = cl.Update(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			item = &unstructured.Unstructured{}
@@ -268,11 +267,11 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err = cl.Get(context.Background(), client.ObjectKeyFromObject(item), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Inspecting the object")
 			value, found, err := unstructured.NestedInt64(item.Object, "spec", "replicas")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(found).To(BeTrue())
 			Expect(value).To(Equal(int64(2)))
 		})
@@ -284,14 +283,14 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err := cl.Create(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Updating the object")
 			original := item.DeepCopy()
 			err = unstructured.SetNestedField(item.Object, int64(2), "spec", "replicas")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			err = cl.Patch(context.Background(), item, client.MergeFrom(original))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			item = &unstructured.Unstructured{}
@@ -299,11 +298,11 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err = cl.Get(context.Background(), client.ObjectKeyFromObject(item), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Inspecting the object")
 			value, found, err := unstructured.NestedInt64(item.Object, "spec", "replicas")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(found).To(BeTrue())
 			Expect(value).To(Equal(int64(2)))
 		})
@@ -315,11 +314,11 @@ var _ = Describe("Fake client", func() {
 			item.SetKind("Image")
 			item.SetName("my-item")
 			err := cl.Create(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Deleting the object")
 			err = cl.Delete(context.Background(), item)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			item = &unstructured.Unstructured{}
@@ -337,7 +336,7 @@ var _ = Describe("Fake client", func() {
 				client.MatchingLabels(map[string]string{
 					"test-label": "label-value",
 				}))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(1))
 			Expect(list.Items).To(ConsistOf(*dep2))
 		})
@@ -347,7 +346,7 @@ var _ = Describe("Fake client", func() {
 			list := &appsv1.DeploymentList{}
 			err := cl.List(context.Background(), list, client.InNamespace("ns1"),
 				client.HasLabels{"test-label"})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(1))
 			Expect(list.Items).To(ConsistOf(*dep2))
 		})
@@ -365,7 +364,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), newcm)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the new configmap")
 			namespacedName := types.NamespacedName{
@@ -374,7 +373,7 @@ var _ = Describe("Fake client", func() {
 			}
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj).To(Equal(newcm))
 			Expect(obj.ObjectMeta.ResourceVersion).To(Equal("1"))
 		})
@@ -398,7 +397,7 @@ var _ = Describe("Fake client", func() {
 			submitted.ResourceVersion = ""
 			submittedReference := submitted.DeepCopy()
 			err := cl.Create(context.Background(), submitted)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
 			Expect(submitted).To(Equal(submittedReference))
 		})
@@ -449,7 +448,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), newcm)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Listing configmaps with a particular label")
 			list := &corev1.ConfigMapList{}
@@ -457,7 +456,7 @@ var _ = Describe("Fake client", func() {
 				client.MatchingLabels(map[string]string{
 					"test-label": "label-value",
 				}))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(1))
 			Expect(list.Items[0].Name).NotTo(BeEmpty())
 		})
@@ -479,7 +478,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Update(context.Background(), newcm)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the new configmap")
 			namespacedName := types.NamespacedName{
@@ -488,7 +487,7 @@ var _ = Describe("Fake client", func() {
 			}
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj).To(Equal(newcm))
 			Expect(obj.ObjectMeta.ResourceVersion).To(Equal("1000"))
 		})
@@ -509,7 +508,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Update(context.Background(), newcm)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the configmap")
 			namespacedName := types.NamespacedName{
@@ -518,7 +517,7 @@ var _ = Describe("Fake client", func() {
 			}
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj).To(Equal(newcm))
 			Expect(obj.ObjectMeta.ResourceVersion).To(Equal("1000"))
 		})
@@ -627,7 +626,7 @@ var _ = Describe("Fake client", func() {
 			}
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj).To(Equal(cm))
 			Expect(obj.ObjectMeta.ResourceVersion).To(Equal(trackerAddResourceVersion))
 		})
@@ -640,7 +639,7 @@ var _ = Describe("Fake client", func() {
 
 			list := &appsv1.DeploymentList{}
 			err = cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(2))
 			Expect(list.Items).To(ConsistOf(*dep, *dep2))
 		})
@@ -649,11 +648,11 @@ var _ = Describe("Fake client", func() {
 			goodRV := trackerAddResourceVersion
 			By("Deleting with a matching ResourceVersion Precondition")
 			err := cl.Delete(context.Background(), dep, client.Preconditions{ResourceVersion: &goodRV})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			list := &appsv1.DeploymentList{}
 			err = cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(1))
 			Expect(list.Items).To(ConsistOf(*dep2))
 		})
@@ -661,12 +660,12 @@ var _ = Describe("Fake client", func() {
 		It("should be able to Delete with no ResourceVersion Precondition", func() {
 			By("Deleting a deployment")
 			err := cl.Delete(context.Background(), dep)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Listing all deployments in the namespace")
 			list := &appsv1.DeploymentList{}
 			err = cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(1))
 			Expect(list.Items).To(ConsistOf(*dep2))
 		})
@@ -676,12 +675,12 @@ var _ = Describe("Fake client", func() {
 			depCopy := dep.DeepCopy()
 			depCopy.ResourceVersion = "bogus"
 			err := cl.Delete(context.Background(), depCopy)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Listing all deployments in the namespace")
 			list := &appsv1.DeploymentList{}
 			err = cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(HaveLen(1))
 			Expect(list.Items).To(ConsistOf(*dep2))
 		})
@@ -703,22 +702,22 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Deleting the object")
 			err = cl.Delete(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj.DeletionTimestamp).NotTo(BeNil())
 
 			By("Removing the finalizer")
 			obj.Finalizers = []string{}
 			err = cl.Update(context.Background(), obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			obj = &corev1.ConfigMap{}
@@ -742,47 +741,47 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj.DeletionTimestamp).To(BeNil())
 
 			By("Adding deletionTimestamp")
 			now := metav1.Now()
 			obj.DeletionTimestamp = &now
 			err = cl.Update(context.Background(), obj)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 
 			By("Deleting the object")
 			err = cl.Delete(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Changing the deletionTimestamp to new value")
 			obj = &corev1.ConfigMap{}
 			t := metav1.NewTime(time.Now().Add(time.Second))
 			obj.DeletionTimestamp = &t
 			err = cl.Update(context.Background(), obj)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 
 			By("Removing deletionTimestamp")
 			obj.DeletionTimestamp = nil
 			err = cl.Update(context.Background(), obj)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 
 		})
 
 		It("should be able to Delete a Collection", func() {
 			By("Deleting a deploymentList")
 			err := cl.DeleteAllOf(context.Background(), &appsv1.Deployment{}, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Listing all deployments in the namespace")
 			list := &appsv1.DeploymentList{}
 			err = cl.List(context.Background(), list, client.InNamespace("ns1"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(list.Items).To(BeEmpty())
 		})
 
@@ -804,18 +803,18 @@ var _ = Describe("Fake client", func() {
 					},
 				}
 				err := cl.Create(context.Background(), newObj)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 			}
 
 			By("Deleting the object")
 			err := cl.DeleteAllOf(context.Background(), &corev1.ConfigMap{}, client.InNamespace("delete-collection-with-finalizers"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			configmaps := corev1.ConfigMapList{}
 			err = cl.List(context.Background(), &configmaps, client.InNamespace("delete-collection-with-finalizers"))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
-			Expect(len(configmaps.Items)).To(Equal(5))
+			Expect(configmaps.Items).To(HaveLen(5))
 			for _, cm := range configmaps.Items {
 				Expect(cm.DeletionTimestamp).NotTo(BeNil())
 			}
@@ -857,7 +856,7 @@ var _ = Describe("Fake client", func() {
 					},
 				}
 				err := cl.Create(context.Background(), newcm, client.DryRunAll)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				By("Getting the new configmap")
 				namespacedName := types.NamespacedName{
@@ -884,7 +883,7 @@ var _ = Describe("Fake client", func() {
 					},
 				}
 				err := cl.Update(context.Background(), newcm, client.DryRunAll)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				By("Getting the new configmap")
 				namespacedName := types.NamespacedName{
@@ -893,7 +892,7 @@ var _ = Describe("Fake client", func() {
 				}
 				obj := &corev1.ConfigMap{}
 				err = cl.Get(context.Background(), namespacedName, obj)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 				Expect(obj).To(Equal(cm))
 				Expect(obj.ObjectMeta.ResourceVersion).To(Equal(trackerAddResourceVersion))
 			})
@@ -901,11 +900,11 @@ var _ = Describe("Fake client", func() {
 			It("Should not Delete the object", func() {
 				By("Deleting a configmap with DryRun with Delete()")
 				err := cl.Delete(context.Background(), cm, client.DryRunAll)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				By("Deleting a configmap with DryRun with DeleteAllOf()")
 				err = cl.DeleteAllOf(context.Background(), cm, client.DryRunAll)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 
 				By("Getting the configmap")
 				namespacedName := types.NamespacedName{
@@ -914,7 +913,7 @@ var _ = Describe("Fake client", func() {
 				}
 				obj := &corev1.ConfigMap{}
 				err = cl.Get(context.Background(), namespacedName, obj)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 				Expect(obj).To(Equal(cm))
 				Expect(obj.ObjectMeta.ResourceVersion).To(Equal(trackerAddResourceVersion))
 			})
@@ -965,12 +964,12 @@ var _ = Describe("Fake client", func() {
 			}
 
 			err := cl.Create(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			obj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj.DeletionTimestamp).To(BeNil())
 
 		})
@@ -1013,7 +1012,7 @@ var _ = Describe("Fake client", func() {
 			By("Getting the object")
 			obj = &corev1.ConfigMap{}
 			err := cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 		})
 
@@ -1035,7 +1034,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Add a deletionTimestamp")
 			obj := &corev1.ConfigMap{
@@ -1047,16 +1046,16 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err = cl.Patch(context.Background(), obj, client.MergeFrom(newObj))
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 
 			By("Deleting the object")
 			err = cl.Delete(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			obj = &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(obj.DeletionTimestamp).NotTo(BeNil())
 
 			By("Changing the deletionTimestamp to new value")
@@ -1064,7 +1063,7 @@ var _ = Describe("Fake client", func() {
 			t := metav1.NewTime(time.Now().Add(time.Second))
 			newObj.DeletionTimestamp = &t
 			err = cl.Patch(context.Background(), newObj, client.MergeFrom(obj))
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 
 			By("Removing deletionTimestamp")
 			newObj = &corev1.ConfigMap{
@@ -1075,7 +1074,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err = cl.Patch(context.Background(), newObj, client.MergeFrom(obj))
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 
 		})
 
@@ -1096,11 +1095,11 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Deleting the object")
 			err = cl.Delete(context.Background(), newObj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Removing the finalizer")
 			obj := &corev1.ConfigMap{
@@ -1111,7 +1110,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err = cl.Patch(context.Background(), obj, client.MergeFrom(newObj))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Getting the object")
 			obj = &corev1.ConfigMap{}
@@ -1136,7 +1135,7 @@ var _ = Describe("Fake client", func() {
 				},
 			}
 			err := cl.Create(context.Background(), obj)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Removing the finalizer")
 			mergePatch, err := json.Marshal(map[string]interface{}{
@@ -1146,18 +1145,18 @@ var _ = Describe("Fake client", func() {
 					},
 				},
 			})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			err = cl.Patch(context.Background(), obj, client.RawPatch(types.StrategicMergePatchType, mergePatch))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			By("Check the finalizer has been removed in the object")
-			Expect(len(obj.Finalizers)).To(Equal(0))
+			Expect(obj.Finalizers).To(BeEmpty())
 
 			By("Check the finalizer has been removed in client")
 			newObj := &corev1.ConfigMap{}
 			err = cl.Get(context.Background(), namespacedName, newObj)
-			Expect(err).To(BeNil())
-			Expect(len(newObj.Finalizers)).To(Equal(0))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(newObj.Finalizers).To(BeEmpty())
 		})
 
 	}
@@ -1229,7 +1228,7 @@ var _ = Describe("Fake client", func() {
 						FieldSelector: fields.OneTermEqualSelector("key", "val"),
 					}
 					err := cl.List(context.Background(), &corev1.ConfigMapList{}, listOpts)
-					Expect(err).NotTo(BeNil())
+					Expect(err).To(HaveOccurred())
 				})
 
 				It("errors when there's no Index matching the field name", func() {
@@ -1237,7 +1236,7 @@ var _ = Describe("Fake client", func() {
 						FieldSelector: fields.OneTermEqualSelector("spec.paused", "false"),
 					}
 					err := cl.List(context.Background(), &appsv1.DeploymentList{}, listOpts)
-					Expect(err).NotTo(BeNil())
+					Expect(err).To(HaveOccurred())
 				})
 
 				It("errors when field selector uses two requirements", func() {
@@ -1247,7 +1246,7 @@ var _ = Describe("Fake client", func() {
 							fields.OneTermEqualSelector("spec.strategy.type", string(appsv1.RecreateDeploymentStrategyType)),
 						)}
 					err := cl.List(context.Background(), &appsv1.DeploymentList{}, listOpts)
-					Expect(err).NotTo(BeNil())
+					Expect(err).To(HaveOccurred())
 				})
 
 				It("returns two deployments that match the only field selector requirement", func() {
@@ -1335,7 +1334,7 @@ var _ = Describe("Fake client", func() {
 							fields.OneTermEqualSelector("spec.strategy.type", string(appsv1.RecreateDeploymentStrategyType)),
 						)}
 					err := cl.List(context.Background(), &appsv1.DeploymentList{}, listOpts)
-					Expect(err).NotTo(BeNil())
+					Expect(err).To(HaveOccurred())
 				})
 			})
 		})
@@ -1371,12 +1370,12 @@ var _ = Describe("Fake client", func() {
 		}
 		obj := &appsv1.Deployment{}
 		err := cl.Get(context.Background(), namespacedName, obj)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(obj).To(Equal(dep))
 
 		By("Getting a deployment from clientSet")
 		csDep2, err := clientSet.AppsV1().Deployments("ns1").Get(context.Background(), "test-deployment-2", metav1.GetOptions{})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(csDep2).To(Equal(dep2))
 
 		By("Getting a new deployment")
@@ -1401,11 +1400,11 @@ var _ = Describe("Fake client", func() {
 		}
 
 		_, err = clientSet.AppsV1().Deployments("ns1").Create(context.Background(), dep3, metav1.CreateOptions{})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		obj = &appsv1.Deployment{}
 		err = cl.Get(context.Background(), namespacedName3, obj)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(obj).To(Equal(dep3))
 	})
 
@@ -1421,9 +1420,9 @@ var _ = Describe("Fake client", func() {
 		cl := NewClientBuilder().WithStatusSubresource(obj).WithObjects(obj).Build()
 
 		obj.Status.NodeInfo.MachineID = "updated-machine-id"
-		Expect(cl.Update(context.Background(), obj)).To(BeNil())
+		Expect(cl.Update(context.Background(), obj)).To(Succeed())
 
-		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(BeNil())
+		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(Succeed())
 
 		Expect(obj.Status).To(BeEquivalentTo(corev1.NodeStatus{NodeInfo: corev1.NodeSystemInfo{MachineID: "machine-id"}}))
 	})
@@ -1485,13 +1484,13 @@ var _ = Describe("Fake client", func() {
 				},
 			},
 		}
-		Expect(cl.Create(context.Background(), obj)).To(BeNil())
+		Expect(cl.Create(context.Background(), obj)).To(Succeed())
 		original := obj.DeepCopy()
 
 		obj.Status.NodeInfo.MachineID = "machine-id-from-patch"
-		Expect(cl.Patch(context.Background(), obj, client.MergeFrom(original))).To(BeNil())
+		Expect(cl.Patch(context.Background(), obj, client.MergeFrom(original))).To(Succeed())
 
-		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(BeNil())
+		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(Succeed())
 
 		Expect(obj.Status).To(BeEquivalentTo(corev1.NodeStatus{NodeInfo: corev1.NodeSystemInfo{MachineID: "machine-id"}}))
 	})
@@ -1534,11 +1533,11 @@ var _ = Describe("Fake client", func() {
 		cl := NewClientBuilder().WithStatusSubresource(obj).WithObjects(obj).Build()
 
 		err = unstructured.SetNestedField(obj.Object, map[string]any{"state": "new"}, "status")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
-		Expect(cl.Update(context.Background(), obj)).To(BeNil())
+		Expect(cl.Update(context.Background(), obj)).To(Succeed())
 
-		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(BeNil())
+		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(Succeed())
 
 		Expect(obj.Object["status"]).To(BeEquivalentTo(map[string]any{"state": "old"}))
 	})
@@ -1557,10 +1556,10 @@ var _ = Describe("Fake client", func() {
 		err = unstructured.SetNestedField(obj.Object, "from-status-update", "spec")
 		Expect(err).NotTo(HaveOccurred())
 		err = unstructured.SetNestedField(obj.Object, map[string]any{"state": "new"}, "status")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
-		Expect(cl.Status().Update(context.Background(), obj)).To(BeNil())
-		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(BeNil())
+		Expect(cl.Status().Update(context.Background(), obj)).To(Succeed())
+		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(Succeed())
 
 		Expect(obj.Object["status"]).To(BeEquivalentTo(map[string]any{"state": "new"}))
 		Expect(obj.Object["spec"]).To(BeEquivalentTo("original"))
@@ -1573,14 +1572,14 @@ var _ = Describe("Fake client", func() {
 		obj.SetName("a-foo")
 		cl := NewClientBuilder().WithStatusSubresource(obj).Build()
 
-		Expect(cl.Create(context.Background(), obj)).To(BeNil())
+		Expect(cl.Create(context.Background(), obj)).To(Succeed())
 		original := obj.DeepCopy()
 
 		err := unstructured.SetNestedField(obj.Object, map[string]interface{}{"count": int64(2)}, "status")
-		Expect(err).To(BeNil())
-		Expect(cl.Patch(context.Background(), obj, client.MergeFrom(original))).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(cl.Patch(context.Background(), obj, client.MergeFrom(original))).To(Succeed())
 
-		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(BeNil())
+		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(Succeed())
 
 		Expect(obj.Object["status"]).To(BeNil())
 
@@ -1601,10 +1600,10 @@ var _ = Describe("Fake client", func() {
 		err = unstructured.SetNestedField(obj.Object, "from-status-update", "spec")
 		Expect(err).NotTo(HaveOccurred())
 		err = unstructured.SetNestedField(obj.Object, map[string]any{"state": "new"}, "status")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
-		Expect(cl.Status().Patch(context.Background(), obj, client.MergeFrom(original))).To(BeNil())
-		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(BeNil())
+		Expect(cl.Status().Patch(context.Background(), obj, client.MergeFrom(original))).To(Succeed())
+		Expect(cl.Get(context.Background(), client.ObjectKeyFromObject(obj), obj)).To(Succeed())
 
 		Expect(obj.Object["status"]).To(BeEquivalentTo(map[string]any{"state": "new"}))
 		Expect(obj.Object["spec"]).To(BeEquivalentTo("original"))
@@ -1659,7 +1658,7 @@ var _ = Describe("Fake client", func() {
 			cl := NewClientBuilder().Build()
 
 			err := cl.SubResource("eviction-subresource").Create(context.Background(), &corev1.Namespace{}, tp)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 	}
 
